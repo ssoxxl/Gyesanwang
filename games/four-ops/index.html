@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사칙연산 콤보 게임 | 계산왕.com</title>
+  <meta name="description" content="연속 정답으로 콤보를 이어가며 사칙연산 감각을 올리는 게임입니다.">
+  <link rel="canonical" href="https://xn--989av19a47d.com/games/four-ops/">
+  <meta property="og:url" content="https://xn--989av19a47d.com/games/four-ops/">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header"><div class="site-header-inner"><a class="brand-lockup" href="/"><span class="brand-mark">계</span><span class="brand-copy"><strong>계산왕.com</strong><span>STAGE 02 / COMBO</span></span></a><nav class="main-nav"><a href="/">HOME</a><a class="active" href="/games/">GAMES</a><a href="/learn/mental-math/">GUIDE</a></nav><button class="theme-toggle" type="button" data-theme-toggle>◐</button></div></header>
+    <main class="page-wrap">
+      <section class="game-box">
+        <span class="eyebrow">STAGE 02</span>
+        <h1 class="page-title">사칙연산 콤보 게임</h1>
+        <p class="lede">연속으로 맞히실수록 점수 배수가 올라갑니다. 빠르게 풀기보다 흐름을 끊지 않는 쪽이 훨씬 중요합니다.</p>
+        <div class="score-board"><div class="score-box"><span>SCORE</span><strong id="comboScore">0</strong></div><div class="score-box"><span>COMBO</span><strong id="comboStreak">0</strong></div><div class="score-box"><span>BEST</span><strong id="comboBest">0</strong></div></div>
+        <div class="question-box"><span>MISSION</span><strong id="comboQuestion">START를 눌러 주세요</strong></div>
+        <div class="form-grid"><div class="field"><label for="comboAnswer">정답 입력</label><input id="comboAnswer" type="number" inputmode="numeric" placeholder="정답을 입력하세요"></div></div>
+        <div class="inline-actions"><button class="solid-button" type="button" id="comboStart">▶ START</button><button class="ghost-button" type="button" id="comboSubmit">✓ ENTER</button></div>
+        <div class="result-box" id="comboFeedback"><strong>READY</strong><div>곱셈은 2배, 5배, 10배처럼 익숙한 수부터 떠올리시면 훨씬 편합니다.</div></div>
+        <div class="section"><h2>RELATED MODE</h2><div class="inline-actions"><a class="chip-link" href="/learn/mental-math/">MENTAL GUIDE</a><a class="chip-link" href="/games/mental-speed/">SPEED TEST</a></div></div>
+      </section>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const q = document.getElementById("comboQuestion");
+      const a = document.getElementById("comboAnswer");
+      const score = document.getElementById("comboScore");
+      const streak = document.getElementById("comboStreak");
+      const best = document.getElementById("comboBest");
+      const feedback = document.getElementById("comboFeedback");
+      let current = 0;
+      let total = 0;
+      let max = 0;
+      let solution = 0;
+      function next() {
+        const x = Math.floor(Math.random() * 18) + 2;
+        const y = Math.floor(Math.random() * 14) + 2;
+        const list = [{ text: `${x} + ${y}`, value: x + y }, { text: `${x + y} - ${x}`, value: y }, { text: `${x} × ${y}`, value: x * y }];
+        const item = list[Math.floor(Math.random() * list.length)];
+        q.textContent = item.text;
+        solution = item.value;
+        a.value = "";
+        a.focus();
+      }
+      function submit() {
+        if (!q.textContent.includes(" ")) return;
+        if (Number(a.value) === solution) {
+          current += 1;
+          max = Math.max(max, current);
+          total += 10 * current;
+          feedback.innerHTML = `<strong>CLEAR</strong><div>정답입니다! 콤보 ${current}가 유지됩니다.</div>`;
+        } else {
+          feedback.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>정답은 ${solution}입니다. 다시 도전해 보세요.</div>`;
+          current = 0;
+        }
+        score.textContent = String(total);
+        streak.textContent = String(current);
+        best.textContent = String(max);
+        next();
+      }
+      document.getElementById("comboStart").addEventListener("click", () => {
+        current = 0; total = 0; max = 0;
+        score.textContent = "0"; streak.textContent = "0"; best.textContent = "0";
+        feedback.innerHTML = "<strong>START</strong><div>실수 없이 콤보를 이어가 보세요.</div>";
+        next();
+      });
+      document.getElementById("comboSubmit").addEventListener("click", submit);
+      a.addEventListener("keydown", (event) => { if (event.key === "Enter") submit(); });
+    })();
+  </script>
+</body>
+</html>

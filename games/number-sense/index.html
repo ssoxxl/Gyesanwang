@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>큰 수 비교 게임 | 계산왕.com</title>
+  <meta name="description" content="두 수 중 더 큰 수를 빠르게 골라 자릿수 감각을 키우는 게임입니다.">
+  <link rel="canonical" href="https://xn--989av19a47d.com/games/number-sense/">
+  <meta property="og:url" content="https://xn--989av19a47d.com/games/number-sense/">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header"><div class="site-header-inner"><a class="brand-lockup" href="/"><span class="brand-mark">계</span><span class="brand-copy"><strong>계산왕.com</strong><span>STAGE 05 / NUMBER</span></span></a><nav class="main-nav"><a href="/">HOME</a><a class="active" href="/games/">GAMES</a><a href="/learn/middle-school-practice/">GUIDE</a></nav><button class="theme-toggle" type="button" data-theme-toggle>◐</button></div></header>
+    <main class="page-wrap"><section class="game-box"><span class="eyebrow">STAGE 05</span><h1 class="page-title">큰 수 비교 게임</h1><p class="lede">큰 숫자를 볼 때 머리가 멈춘다면 이 스테이지가 도움이 됩니다. 자릿수부터 보는 감각을 익혀보세요.</p><div class="score-board"><div class="score-box"><span>STREAK</span><strong id="nsStreak">0</strong></div><div class="score-box"><span>TRY</span><strong id="nsTry">0</strong></div><div class="score-box"><span>HIT</span><strong id="nsHit">0</strong></div></div><div class="question-box"><span>MISSION</span><strong id="nsQuestion">더 큰 수를 골라 주세요</strong></div><div class="inline-actions"><button class="solid-button" type="button" id="leftBtn">LEFT</button><button class="solid-button" type="button" id="rightBtn">RIGHT</button><button class="ghost-button" type="button" id="nsReset">RESET</button></div><div class="result-box" id="nsFeedback"><strong>READY</strong><div>자릿수가 다르면 자릿수부터, 같으면 앞자리부터 보시면 됩니다.</div></div><div class="section"><h2>RELATED MODE</h2><div class="inline-actions"><a class="chip-link" href="/learn/middle-school-practice/">MIDDLE GUIDE</a><a class="chip-link" href="/games/mental-speed/">SPEED TEST</a></div></div></section></main>
+  </div>
+  <script>
+    (() => {
+      const q = document.getElementById("nsQuestion");
+      const streakEl = document.getElementById("nsStreak");
+      const tryEl = document.getElementById("nsTry");
+      const hitEl = document.getElementById("nsHit");
+      const feedback = document.getElementById("nsFeedback");
+      let left = 0, right = 0, streak = 0, tries = 0, hits = 0;
+      function next() {
+        left = Math.floor(Math.random() * 900000) + 100000;
+        right = Math.floor(Math.random() * 900000) + 100000;
+        q.textContent = `${left.toLocaleString()} vs ${right.toLocaleString()}`;
+      }
+      function choose(side) {
+        tries += 1;
+        const correct = side === "left" ? left >= right : right >= left;
+        if (correct) {
+          hits += 1;
+          streak += 1;
+          feedback.innerHTML = "<strong>CLEAR</strong><div>정답입니다! 계속 이어가 보세요.</div>";
+        } else {
+          streak = 0;
+          feedback.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>더 큰 수는 ${Math.max(left, right).toLocaleString()}입니다.</div>`;
+        }
+        streakEl.textContent = String(streak);
+        tryEl.textContent = String(tries);
+        hitEl.textContent = String(hits);
+        next();
+      }
+      document.getElementById("leftBtn").addEventListener("click", () => choose("left"));
+      document.getElementById("rightBtn").addEventListener("click", () => choose("right"));
+      document.getElementById("nsReset").addEventListener("click", () => {
+        streak = 0; tries = 0; hits = 0;
+        streakEl.textContent = "0"; tryEl.textContent = "0"; hitEl.textContent = "0";
+        feedback.innerHTML = "<strong>RESET</strong><div>처음부터 다시 도전해 보세요.</div>";
+        next();
+      });
+      next();
+    })();
+  </script>
+</body>
+</html>

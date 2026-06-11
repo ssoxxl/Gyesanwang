@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시간 합산 계산기 | 계산왕.com</title>
+  <meta name="description" content="시:분 형식의 시간을 여러 개 입력해 총 시간을 계산한다.">
+  <link rel="canonical" href="https://xn--989av19a47d.com/calculators/time/">
+  <meta property="og:url" content="https://xn--989av19a47d.com/calculators/time/">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site.js" defer></script>
+</head>
+<body>
+  <div class="site-shell"><header class="site-header"><div class="site-header-inner"><a class="brand-lockup" href="/"><span class="brand-mark">계</span><span class="brand-copy"><strong>계산왕.com</strong><span>시간 합산 계산기</span></span></a><nav class="main-nav"><a href="/">홈</a><a class="active" href="/calculators/">계산기</a><a href="/learn/time-calculation/">학습글</a></nav><button class="theme-toggle" type="button" data-theme-toggle>달</button></div></header><main class="page-wrap"><section class="tool-box"><span class="eyebrow">Calculator</span><h1 class="page-title">시간 합산 계산기</h1><p class="lede">공부 시간, 운동 시간, 일한 시간을 더할 때 60분 체계 때문에 자꾸 헷갈리면 이 계산기가 편해.</p><div class="form-grid"><div class="field"><label for="timeInput">시간 목록</label><input id="timeInput" type="text" value="1:20, 0:45, 2:15"></div></div><div class="inline-actions"><button class="solid-button" type="button" id="timeCalc">계산하기</button></div><div class="result-box" id="timeResult"><strong>결과</strong><div>총 4시간 20분</div></div><div class="inline-actions"><a class="chip-link" href="/learn/time-calculation/">시간 계산 감각 익히기</a><a class="chip-link" href="/games/change/">거스름돈 계산 게임</a></div></section></main></div>
+  <script>document.getElementById("timeCalc").addEventListener("click",function(){const total=document.getElementById("timeInput").value.split(",").map((item)=>item.trim()).filter(Boolean).reduce((sum,item)=>{const parts=item.split(":").map(Number);if(parts.length!==2||parts.some(Number.isNaN))return sum;return sum+(parts[0]*60)+parts[1];},0);const hours=Math.floor(total/60);const minutes=total%60;document.getElementById("timeResult").innerHTML=`<strong>결과</strong><div>총 ${hours}시간 ${minutes}분</div>`;});</script>
+</body>
+</html>

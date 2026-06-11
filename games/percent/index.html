@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>퍼센트 감각 게임 | 계산왕.com</title>
+  <meta name="description" content="퍼센트와 할인율을 머리에서 바로 계산하는 감각을 키우는 게임입니다.">
+  <link rel="canonical" href="https://xn--989av19a47d.com/games/percent/">
+  <meta property="og:url" content="https://xn--989av19a47d.com/games/percent/">
+  <link rel="stylesheet" href="/site.css">
+  <script src="/site.js" defer></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header"><div class="site-header-inner"><a class="brand-lockup" href="/"><span class="brand-mark">계</span><span class="brand-copy"><strong>계산왕.com</strong><span>STAGE 03 / PERCENT</span></span></a><nav class="main-nav"><a href="/">HOME</a><a class="active" href="/games/">GAMES</a><a href="/calculators/percent/">TOOLS</a><a href="/learn/percent-tricks/">GUIDE</a></nav><button class="theme-toggle" type="button" data-theme-toggle>◐</button></div></header>
+    <main class="page-wrap"><section class="game-box"><span class="eyebrow">STAGE 03</span><h1 class="page-title">퍼센트 감각 게임</h1><p class="lede">퍼센트를 보자마자 10%, 5%, 25% 같은 익숙한 비율로 나눠보는 연습을 해보세요.</p><div class="question-box"><span>MISSION</span><strong id="percentQuestion">예: 240의 15%는?</strong></div><div class="form-grid"><div class="field"><label for="percentAnswer">정답 입력</label><input id="percentAnswer" type="number" inputmode="decimal" placeholder="정답을 입력하세요"></div></div><div class="inline-actions"><button class="solid-button" type="button" id="percentNew">▶ NEXT</button><button class="ghost-button" type="button" id="percentCheck">✓ ENTER</button></div><div class="result-box" id="percentFeedback"><strong>READY</strong><div>15%는 10%와 5%로 나눠서 보시면 훨씬 쉬워집니다.</div></div><div class="section"><h2>RELATED MODE</h2><div class="inline-actions"><a class="chip-link" href="/learn/percent-tricks/">PERCENT GUIDE</a><a class="chip-link" href="/calculators/percent/">PERCENT TOOL</a></div></div></section></main>
+  </div>
+  <script>
+    (() => {
+      const q = document.getElementById("percentQuestion");
+      const a = document.getElementById("percentAnswer");
+      const f = document.getElementById("percentFeedback");
+      let solution = 0;
+      function next() {
+        const base = [80, 120, 150, 240, 360, 480][Math.floor(Math.random() * 6)];
+        const rate = [5, 10, 15, 20, 25, 30][Math.floor(Math.random() * 6)];
+        solution = (base * rate) / 100;
+        q.textContent = `${base}의 ${rate}%는?`;
+        a.value = "";
+        a.focus();
+      }
+      function check() {
+        if (Number(a.value) === solution) {
+          f.innerHTML = "<strong>CLEAR</strong><div>정답입니다! 다음 문제도 이어서 도전해 보세요.</div>";
+        } else {
+          f.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>정답은 ${solution}입니다. 다시 계산해 보세요.</div>`;
+        }
+      }
+      document.getElementById("percentNew").addEventListener("click", next);
+      document.getElementById("percentCheck").addEventListener("click", check);
+      a.addEventListener("keydown", (event) => { if (event.key === "Enter") check(); });
+      next();
+    })();
+  </script>
+</body>
+</html>
