@@ -31,7 +31,7 @@
       <section class="game-box">
         <span class="eyebrow">STAGE 01</span>
         <h1 class="page-title">암산 속도 테스트</h1>
-        <p class="lede">60초 안에 문제를 풀면서 속도와 정확도를 함께 확인해보세요. 빠르게 푸는 것도 중요하지만, 계속 맞히는 흐름을 만드는 쪽이 더 중요합니다.</p>
+        <p class="lede">60초 세션 안에서 문제를 풀며 반응 속도와 정확도를 함께 점검해 보세요. 빠르게 푸는 것도 중요하지만, 계속 맞히는 흐름을 유지하는 쪽이 더 중요합니다.</p>
         <div class="score-board">
           <div class="score-box"><span>TIME</span><strong id="time">60</strong></div>
           <div class="score-box"><span>SCORE</span><strong id="score">0</strong></div>
@@ -39,117 +39,149 @@
         </div>
         <div class="question-box">
           <span>MISSION</span>
-          <strong id="question">START를 눌러 주세요</strong>
+          <strong id="question">START를 눌러 세션을 개시해 주세요</strong>
         </div>
         <div class="form-grid">
           <div class="field">
-            <label for="answer">정답 입력</label>
-            <input id="answer" type="number" inputmode="numeric" placeholder="정답을 입력하세요">
+            <label for="answer">답안 입력</label>
+            <input id="answer" type="number" inputmode="numeric" placeholder="값을 입력하세요">
           </div>
         </div>
         <div class="inline-actions">
-          <button class="solid-button" type="button" id="startButton">▶ START</button>
-          <button class="ghost-button" type="button" id="submitButton">✓ ENTER</button>
+          <button class="solid-button" type="button" id="startBtn">▶ START</button>
+          <button class="ghost-button" type="button" id="submitBtn">✓ ENTER</button>
         </div>
         <div class="result-box" id="feedback">
           <strong>READY</strong>
-          <div>덧셈은 큰 자리부터, 뺄셈은 남는 값부터, 곱셈은 5배나 10배 기준부터 떠올려 보세요.</div>
+          <div>세션을 시작하면 즉시 첫 문제가 전개됩니다.</div>
         </div>
         <div class="section">
           <h2>RELATED MODE</h2>
           <div class="inline-actions">
             <a class="chip-link" href="/learn/mental-math/">MENTAL GUIDE</a>
-            <a class="chip-link" href="/calculators/average/">AVERAGE TOOL</a>
+            <a class="chip-link" href="/games/four-ops/">COMBO MODE</a>
           </div>
         </div>
       </section>
     </main>
   </div>
+
   <script>
-    (() => {
+    (function () {
       const timeEl = document.getElementById("time");
       const scoreEl = document.getElementById("score");
       const accuracyEl = document.getElementById("accuracy");
       const questionEl = document.getElementById("question");
       const answerEl = document.getElementById("answer");
       const feedbackEl = document.getElementById("feedback");
-      const startButton = document.getElementById("startButton");
-      const submitButton = document.getElementById("submitButton");
-      let answer = 0;
-      let score = 0;
-      let tries = 0;
-      let time = 60;
+      const startBtn = document.getElementById("startBtn");
+      const submitBtn = document.getElementById("submitBtn");
+
       let timer = null;
+      let timeLeft = 60;
+      let score = 0;
+      let solved = 0;
+      let correct = 0;
+      let answer = 0;
+      let running = false;
+
+      function updateAccuracy() {
+        const value = solved ? Math.round((correct / solved) * 100) : 0;
+        accuracyEl.textContent = value + "%";
+      }
 
       function nextQuestion() {
-        const a = Math.floor(Math.random() * 30) + 2;
-        const b = Math.floor(Math.random() * 20) + 2;
-        const type = Math.floor(Math.random() * 3);
+        const type = Math.floor(Math.random() * 4);
+        let a = Math.floor(Math.random() * 40) + 10;
+        let b = Math.floor(Math.random() * 20) + 1;
+        let text = "";
 
         if (type === 0) {
           answer = a + b;
-          questionEl.textContent = `${a} + ${b}`;
+          text = a + " + " + b;
         } else if (type === 1) {
           const minuend = Math.floor(Math.random() * 50) + 20;
           const subtrahend = Math.floor(Math.random() * (minuend - 1)) + 1;
           answer = minuend - subtrahend;
-          questionEl.textContent = `${minuend} - ${subtrahend}`;
+          text = minuend + " - " + subtrahend;
+        } else if (type === 2) {
+          a = Math.floor(Math.random() * 12) + 2;
+          b = Math.floor(Math.random() * 9) + 2;
+          answer = a * b;
+          text = a + " × " + b;
         } else {
-          const x = Math.floor(a / 2) + 2;
-          const y = Math.floor(b / 2) + 2;
-          answer = x * y;
-          questionEl.textContent = `${x} × ${y}`;
+          const divisor = Math.floor(Math.random() * 8) + 2;
+          const quotient = Math.floor(Math.random() * 10) + 2;
+          answer = divisor * quotient;
+          text = answer + " ÷ " + divisor;
+          answer = quotient;
         }
 
+        questionEl.textContent = text;
         answerEl.value = "";
         answerEl.focus();
       }
 
-      function refreshStats() {
-        timeEl.textContent = String(time);
-        scoreEl.textContent = String(score);
-        const accuracy = tries === 0 ? 0 : Math.round((score / tries) * 100);
-        accuracyEl.textContent = `${accuracy}%`;
+      function finishGame() {
+        running = false;
+        window.clearInterval(timer);
+        timer = null;
+        feedbackEl.innerHTML = `<strong style="color: var(--accent3);">SESSION END</strong><div>${score}문제 성공 / 정확도 ${accuracyEl.textContent}. 잠시 숨을 고르고 다시 입장해 보세요.</div>`;
+        questionEl.textContent = "세션 종료";
       }
 
-      function submit() {
-        if (!timer) return;
-        tries += 1;
-        if (Number(answerEl.value) === answer) {
-          score += 1;
-          feedbackEl.innerHTML = "<strong>CLEAR</strong><div>정답입니다! 다음 문제로 넘어갑니다.</div>";
-        } else {
-          feedbackEl.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>정답은 ${answer}입니다. 다시 한번 도전해 보세요.</div>`;
+      function startGame() {
+        if (running) {
+          return;
         }
-        refreshStats();
-        nextQuestion();
-      }
-
-      startButton.addEventListener("click", () => {
-        clearInterval(timer);
+        running = true;
+        timeLeft = 60;
         score = 0;
-        tries = 0;
-        time = 60;
-        refreshStats();
-        feedbackEl.innerHTML = "<strong>START</strong><div>리듬을 유지하면서 차분하게 풀어보세요.</div>";
+        solved = 0;
+        correct = 0;
+        timeEl.textContent = String(timeLeft);
+        scoreEl.textContent = "0";
+        updateAccuracy();
+        feedbackEl.innerHTML = "<strong>SESSION START</strong><div>판정 로그를 수집합니다. 첫 문제를 전개합니다.</div>";
         nextQuestion();
-        timer = window.setInterval(() => {
-          time -= 1;
-          refreshStats();
-          if (time <= 0) {
-            clearInterval(timer);
-            timer = null;
-            questionEl.textContent = "GAME OVER";
-            feedbackEl.innerHTML = `<strong style="color: var(--accent3);">GAME OVER</strong><div>${score}문제 정답 / 정확도 ${accuracyEl.textContent}. 계속 도전하시겠습니까?</div>`;
+
+        timer = window.setInterval(function () {
+          timeLeft -= 1;
+          timeEl.textContent = String(timeLeft);
+          if (timeLeft <= 0) {
+            finishGame();
           }
         }, 1000);
-      });
+      }
 
-      submitButton.addEventListener("click", submit);
-      answerEl.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") submit();
+      function submitAnswer() {
+        if (!running) {
+          return;
+        }
+        const value = Number(answerEl.value);
+        if (Number.isNaN(value)) {
+          return;
+        }
+        solved += 1;
+        if (value === answer) {
+          score += 1;
+          correct += 1;
+          scoreEl.textContent = String(score);
+          feedbackEl.innerHTML = "<strong>CLEAR</strong><div>연산 성공. 다음 문제를 즉시 전개합니다.</div>";
+        } else {
+          feedbackEl.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>판정 실패. 정답은 ${answer}입니다. 같은 유형을 한 번 더 의식해 보세요.</div>`;
+        }
+        updateAccuracy();
+        nextQuestion();
+      }
+
+      startBtn.addEventListener("click", startGame);
+      submitBtn.addEventListener("click", submitAnswer);
+      answerEl.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          submitAnswer();
+        }
       });
-      refreshStats();
     })();
   </script>
 </body>

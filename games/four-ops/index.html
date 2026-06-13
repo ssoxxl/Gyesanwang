@@ -17,62 +17,92 @@
       <section class="game-box">
         <span class="eyebrow">STAGE 02</span>
         <h1 class="page-title">사칙연산 콤보 게임</h1>
-        <p class="lede">연속으로 맞히실수록 점수 배수가 올라갑니다. 빠르게 풀기보다 흐름을 끊지 않는 쪽이 훨씬 중요합니다.</p>
+        <p class="lede">연속으로 맞히실수록 점수 배수가 올라갑니다. 무작정 빠르게 누르기보다 흐름을 끊지 않는 쪽이 훨씬 중요합니다.</p>
         <div class="score-board"><div class="score-box"><span>SCORE</span><strong id="comboScore">0</strong></div><div class="score-box"><span>COMBO</span><strong id="comboStreak">0</strong></div><div class="score-box"><span>BEST</span><strong id="comboBest">0</strong></div></div>
-        <div class="question-box"><span>MISSION</span><strong id="comboQuestion">START를 눌러 주세요</strong></div>
-        <div class="form-grid"><div class="field"><label for="comboAnswer">정답 입력</label><input id="comboAnswer" type="number" inputmode="numeric" placeholder="정답을 입력하세요"></div></div>
+        <div class="question-box"><span>MISSION</span><strong id="comboQuestion">START를 눌러 세션을 개시해 주세요</strong></div>
+        <div class="form-grid"><div class="field"><label for="comboAnswer">답안 입력</label><input id="comboAnswer" type="number" inputmode="numeric" placeholder="값을 입력하세요"></div></div>
         <div class="inline-actions"><button class="solid-button" type="button" id="comboStart">▶ START</button><button class="ghost-button" type="button" id="comboSubmit">✓ ENTER</button></div>
-        <div class="result-box" id="comboFeedback"><strong>READY</strong><div>곱셈은 2배, 5배, 10배처럼 익숙한 수부터 떠올리시면 훨씬 편합니다.</div></div>
-        <div class="section"><h2>RELATED MODE</h2><div class="inline-actions"><a class="chip-link" href="/learn/mental-math/">MENTAL GUIDE</a><a class="chip-link" href="/games/mental-speed/">SPEED TEST</a></div></div>
+        <div class="result-box" id="comboFeedback"><strong>READY</strong><div>세션이 개시되면 콤보 로그가 활성화됩니다.</div></div>
+        <div class="section"><h2>RELATED MODE</h2><div class="inline-actions"><a class="chip-link" href="/games/mental-speed/">SPEED TEST</a><a class="chip-link" href="/learn/mental-math/">MENTAL GUIDE</a></div></div>
       </section>
     </main>
   </div>
   <script>
-    (() => {
-      const q = document.getElementById("comboQuestion");
-      const a = document.getElementById("comboAnswer");
-      const score = document.getElementById("comboScore");
-      const streak = document.getElementById("comboStreak");
-      const best = document.getElementById("comboBest");
+    (function () {
+      const scoreEl = document.getElementById("comboScore");
+      const streakEl = document.getElementById("comboStreak");
+      const bestEl = document.getElementById("comboBest");
+      const questionEl = document.getElementById("comboQuestion");
+      const answerEl = document.getElementById("comboAnswer");
       const feedback = document.getElementById("comboFeedback");
-      let current = 0;
-      let total = 0;
-      let max = 0;
+
       let solution = 0;
-      function next() {
-        const x = Math.floor(Math.random() * 18) + 2;
-        const y = Math.floor(Math.random() * 14) + 2;
-        const list = [{ text: `${x} + ${y}`, value: x + y }, { text: `${x + y} - ${x}`, value: y }, { text: `${x} × ${y}`, value: x * y }];
-        const item = list[Math.floor(Math.random() * list.length)];
-        q.textContent = item.text;
-        solution = item.value;
-        a.value = "";
-        a.focus();
-      }
-      function submit() {
-        if (!q.textContent.includes(" ")) return;
-        if (Number(a.value) === solution) {
-          current += 1;
-          max = Math.max(max, current);
-          total += 10 * current;
-          feedback.innerHTML = `<strong>CLEAR</strong><div>정답입니다! 콤보 ${current}가 유지됩니다.</div>`;
+      let score = 0;
+      let current = 0;
+      let best = 0;
+
+      function nextQuestion() {
+        const ops = ["+", "-", "×"];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        let a = Math.floor(Math.random() * 20) + 3;
+        let b = Math.floor(Math.random() * 15) + 2;
+
+        if (op === "+") {
+          solution = a + b;
+        } else if (op === "-") {
+          if (b > a) {
+            const swap = a;
+            a = b;
+            b = swap;
+          }
+          solution = a - b;
         } else {
-          feedback.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>정답은 ${solution}입니다. 다시 도전해 보세요.</div>`;
-          current = 0;
+          solution = a * b;
         }
-        score.textContent = String(total);
-        streak.textContent = String(current);
-        best.textContent = String(max);
-        next();
+
+        questionEl.textContent = `${a} ${op} ${b}`;
+        answerEl.value = "";
+        answerEl.focus();
       }
-      document.getElementById("comboStart").addEventListener("click", () => {
-        current = 0; total = 0; max = 0;
-        score.textContent = "0"; streak.textContent = "0"; best.textContent = "0";
-        feedback.innerHTML = "<strong>START</strong><div>실수 없이 콤보를 이어가 보세요.</div>";
-        next();
-      });
+
+      function startGame() {
+        score = 0;
+        current = 0;
+        scoreEl.textContent = "0";
+        streakEl.textContent = "0";
+        feedback.innerHTML = "<strong>SESSION START</strong><div>콤보 추적을 시작합니다. 첫 문제를 전개합니다.</div>";
+        nextQuestion();
+      }
+
+      function submit() {
+        const value = Number(answerEl.value);
+        if (Number.isNaN(value)) {
+          return;
+        }
+
+        if (value === solution) {
+          current += 1;
+          best = Math.max(best, current);
+          score += current;
+          feedback.innerHTML = `<strong>CLEAR</strong><div>연산 성공. 콤보 ${current}가 유지됩니다.</div>`;
+        } else {
+          current = 0;
+          feedback.innerHTML = `<strong style="color: var(--accent3);">MISS</strong><div>판정 실패. 정답은 ${solution}입니다. 콤보가 초기화되었습니다.</div>`;
+        }
+
+        scoreEl.textContent = String(score);
+        streakEl.textContent = String(current);
+        bestEl.textContent = String(best);
+        nextQuestion();
+      }
+
+      document.getElementById("comboStart").addEventListener("click", startGame);
       document.getElementById("comboSubmit").addEventListener("click", submit);
-      a.addEventListener("keydown", (event) => { if (event.key === "Enter") submit(); });
+      answerEl.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          submit();
+        }
+      });
     })();
   </script>
 </body>

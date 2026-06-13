@@ -11,21 +11,32 @@
 
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
+
     const toggle = document.querySelector("[data-theme-toggle]");
-    if (toggle) {
-      toggle.textContent = theme === "dark" ? "◐" : "◑";
-      toggle.setAttribute("aria-label", theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환");
+    if (!toggle) {
+      return;
+    }
+
+    if (theme === "dark") {
+      toggle.textContent = "◐";
+      toggle.setAttribute("aria-label", "밝은 화면으로 전환");
+    } else {
+      toggle.textContent = "◑";
+      toggle.setAttribute("aria-label", "어두운 화면으로 전환");
     }
   }
 
   function bootTheme() {
     applyTheme(getTheme());
+
     document.addEventListener("click", function (event) {
       const button = event.target.closest("[data-theme-toggle]");
       if (!button) {
         return;
       }
-      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
       localStorage.setItem(storageKey, next);
       applyTheme(next);
     });
@@ -35,9 +46,10 @@
     document.querySelectorAll("[data-copy]").forEach(function (button) {
       button.addEventListener("click", async function () {
         const value = button.getAttribute("data-copy");
+        const original = button.textContent;
+
         try {
           await navigator.clipboard.writeText(value);
-          const original = button.textContent;
           button.textContent = "복사 완료";
           window.setTimeout(function () {
             button.textContent = original;
@@ -52,6 +64,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     bootTheme();
     bindCopyButtons();
+
     const year = document.querySelector("[data-year]");
     if (year) {
       year.textContent = String(new Date().getFullYear());
